@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordBook</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="container">
+        <header>
+            <h1>WordBook</h1>
+            <p>Learn new words and build your vocabulary.</p>
+        </header>
+
+        <section class="add-word">
+            <h2>Add a word</h2>
+
+            <form id="add-word-form">
+                <input
+                    id="word-input"
+                    type="text"
+                    placeholder="Word"
+                    required
+                >
+
+                <input
+                    id="translation-input"
+                    type="text"
+                    placeholder="Translation"
+                    required
+                >
+
+                <button type="submit">Add word</button>
+            </form>
+        </section>
+
+        <section class="search">
+            <input
+                id="search-input"
+                type="text"
+                placeholder="Search for a word..."
+            >
+
+            <button id="search-button">Search</button>
+            <button id="show-all-button">Show all</button>
+        </section>
+
+        <section>
+            <h2>Vocabulary</h2>
+
+            <div id="words-list"></div>
+        </section>
+
+        <p id="message"></p>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

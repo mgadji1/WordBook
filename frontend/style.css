@@ -1,0 +1,113 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+header {
+    margin-bottom: 30px;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+form {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #333;
+    color: white;
+}
+
+button:hover {
+    background: #555;
+}
+
+.search {
+    display: flex;
+    gap: 10px;
+}
+
+#words-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.word-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.word-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.word {
+    font-weight: bold;
+}
+
+.translation {
+    color: #666;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.delete-button {
+    background: #c0392b;
+}
+
+.delete-button:hover {
+    background: #e74c3c;
+}
+
+.edit-button {
+    background: #555;
+}
+
+#message {
+    min-height: 20px;
+    font-weight: bold;
+}
