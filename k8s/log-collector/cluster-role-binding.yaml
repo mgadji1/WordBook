@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vlagent
+subjects:
+  - kind: ServiceAccount
+    name: vlagent
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: vlagent
+  apiGroup: rbac.authorization.k8s.io

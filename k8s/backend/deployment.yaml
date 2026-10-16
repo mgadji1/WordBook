@@ -29,6 +29,16 @@ spec:
                 configMapKeyRef:
                   name: backend-config
                   key: FRONTEND_PORT
+            - name: SERVICE_NAME
+              value: "wordbook-backend"
+            - name: SERVICE_VERSION
+              value: "1.0"
+            - name: DEPLOYMENT_ENVIRONMENT
+              value: "minikube"
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
   strategy:
     type: RollingUpdate
     rollingUpdate:
