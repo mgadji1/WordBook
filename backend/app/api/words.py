@@ -7,6 +7,11 @@ from sqlalchemy import select
 from app.models.word import Word
 from app.schemas.word import WordCreate, WordUpdate, WordResponse
 
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 router = APIRouter(prefix="/api/words", tags=["words"])
 
@@ -18,8 +23,17 @@ async def get_all_words(
     query = select(Word)
 
     result = await db.execute(query)
+    words = result.scalars().all()
 
-    return result.scalars().all()
+    logger.info(
+        "Retrieved all words",
+        extra={
+            "operation": "get_all_words",
+            "words_count": len(words)
+        }
+    )
+
+    return words
 
 
 @router.get("/{word}", response_model=WordResponse)
@@ -34,10 +48,26 @@ async def get_specific_word(
     target_word = result.scalar_one_or_none()
 
     if target_word is None:
+        logger.warning(
+            "Word not found",
+            extra={
+                "operation": "get_specific_word",
+                "word": word
+            }
+        )
+
         raise HTTPException(
             status_code=404,
             detail="Word not found"
         )
+
+    logger.info(
+        "Word found",
+        extra={
+            "operation": "get_specific_word",
+            "word": word
+        }
+    )
 
     return target_word
 
@@ -57,7 +87,23 @@ async def create_word(
     try:
         await db.commit()
         await db.refresh(new_word)
+
+        logger.info(
+            "Word created",
+            extra={
+                "operation": "create_word",
+                "word": new_word.word
+            }
+        )
     except IntegrityError:
+        logger.warning(
+            "Word already exists",
+            extra={
+                "operation": "create_word",
+                "word": new_word.word
+            }
+        )
+        
         await db.rollback()
         raise HTTPException(
             status_code=409,
@@ -80,6 +126,14 @@ async def update_translation(
     target_word = result.scalar_one_or_none()
 
     if target_word is None:
+        logger.warning(
+            "Word not found",
+            extra={
+                "operation": "update_translation",
+                "word": word
+            }
+        )
+
         raise HTTPException(
             status_code=404,
             detail="Word not found"
@@ -89,6 +143,14 @@ async def update_translation(
 
     await db.commit()
     await db.refresh(target_word)
+
+    logger.info(
+        "Word translation updated",
+        extra={
+            "operation": "update_translation",
+            "word": word
+        }
+    )
 
     return target_word
 
@@ -105,6 +167,14 @@ async def delete_word(
     target_word = result.scalar_one_or_none()
 
     if target_word is None:
+        logger.warning(
+            "Word not found",
+            extra={
+                "operation": "delete_word",
+                "word": word
+            }
+        )
+
         raise HTTPException(
             status_code=404,
             detail="Word not found"
@@ -112,6 +182,14 @@ async def delete_word(
 
     await db.delete(target_word)
     await db.commit()
+
+    logger.info(
+        "Word deleted",
+        extra={
+            "operation": "delete_word",
+            "word": word
+        }
+    )
 
     return {
         "message": "Word deleted"
