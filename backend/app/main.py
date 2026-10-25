@@ -44,6 +44,8 @@ from app.api import words
 from app.config import settings
 from fastapi.middleware.cors import CORSMiddleware
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 
 app = FastAPI()
 
@@ -57,6 +59,9 @@ app.add_middleware(
 
 
 app.include_router(words.router)
+
+
+Instrumentator().instrument(app).expose(app)
 
 
 @app.on_event("startup")

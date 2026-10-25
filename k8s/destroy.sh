@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+cd "$(dirname "$0")/.."
+
 echo "1. Deleting frontend..."
 kubectl delete -k k8s/frontend --ignore-not-found
 
@@ -22,7 +24,10 @@ kubectl delete -k k8s/victoria-logs --ignore-not-found
 echo "7. Deleting PostgreSQL..."
 kubectl delete -k k8s/postgres --ignore-not-found
 
-echo "8. Deleting PostgreSQL PVC..."
-kubectl delete pvc postgres-pvc --ignore-not-found
+echo "8. Deleting VictoriaMetrics..."
+helm uninstall vmsingle --ignore-not-found
+
+echo "9. Deleting all PVCs..."
+kubectl delete pvc --all --ignore-not-found
 
 echo "WordBook has been destroyed!"
