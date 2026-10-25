@@ -3,9 +3,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from app.database.database import get_db
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.models.word import Word
 from app.schemas.word import WordCreate, WordUpdate, WordResponse
+
+from app.metrics import (
+    wordbook_operations_total,
+    wordbook_searches_total,
+    wordbook_word_updates_total,
+    wordbook_words_total
+)
 
 import logging
 
@@ -33,6 +40,8 @@ async def get_all_words(
         }
     )
 
+    wordbook_operations_total.labels(operation="get_all_words").inc()
+
     return words
 
 
@@ -46,6 +55,8 @@ async def get_specific_word(
     result = await db.execute(query)
 
     target_word = result.scalar_one_or_none()
+
+    wordbook_searches_total.inc()
 
     if target_word is None:
         logger.warning(
@@ -68,6 +79,8 @@ async def get_specific_word(
             "word": word
         }
     )
+
+    wordbook_operations_total.labels(operation="get_specific_word").inc()
 
     return target_word
 
@@ -109,6 +122,12 @@ async def create_word(
             status_code=409,
             detail="Word already exists"
         )
+
+    wordbook_operations_total.labels(operation="create_word").inc()
+
+    result = await db.execute(select(func.count()).select_from(Word))
+    count = result.scalar_one()
+    wordbook_words_total.set(count) 
 
     return new_word
 
@@ -152,6 +171,10 @@ async def update_translation(
         }
     )
 
+    wordbook_operations_total.labels(operation="update_translation").inc()
+
+    wordbook_word_updates_total.inc()
+
     return target_word
 
 
@@ -190,6 +213,12 @@ async def delete_word(
             "word": word
         }
     )
+
+    wordbook_operations_total.labels(operation="delete_word").inc()
+
+    result = await db.execute(select(func.count()).select_from(Word))
+    count = result.scalar_one()
+    wordbook_words_total.set(count)
 
     return {
         "message": "Word deleted"
