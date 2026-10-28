@@ -2,6 +2,12 @@ import logging
 import os
 from pythonjsonlogger.json import JsonFormatter
 from datetime import datetime, timezone
+import time
+
+from app.metrics import (
+    wordbook_requests_total,
+    wordbook_request_duration_seconds
+)
 
 
 class UTCJsonFormatter(JsonFormatter):
@@ -39,7 +45,7 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from app.api import words
 from app.config import settings
 from fastapi.middleware.cors import CORSMiddleware
@@ -63,6 +69,25 @@ app.include_router(words.router)
 
 Instrumentator().instrument(app).expose(app)
 
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start_time = time.monotonic()
+
+    try:
+        response: Response = await call_next(request)
+
+        wordbook_request_duration_seconds.observe(time.monotonic() - start_time)
+
+        wordbook_requests_total.labels(status=str(response.status_code)).inc()
+
+        return response
+    except Exception:
+        wordbook_request_duration_seconds.observe(time.monotonic() - start_time)
+
+        wordbook_requests_total.labels(status="500").inc()
+
+        raise
 
 @app.on_event("startup")
 async def startup():
