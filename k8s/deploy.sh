@@ -41,4 +41,8 @@ echo "9. Deploying frontend..."
 kubectl apply -k k8s/frontend
 kubectl rollout status deployment/frontend --timeout=60s
 
+echo "10. Deploying prober..."
+kubectl apply -k k8s/prober
+kubectl rollout status deployment/prober --timeout=60s
+
 echo "Successful deployment!"
