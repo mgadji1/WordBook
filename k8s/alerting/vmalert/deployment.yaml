@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmalert
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmalert
+  template:
+    metadata:
+      labels:
+        app: vmalert
+    spec:
+      containers:
+        - name: vmalert
+          image: victoriametrics/vmalert:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-rule=/etc/vmalert/alert-rules.yaml"
+            - "-datasource.url=http://vmsingle-victoria-metrics-single-server:8428"
+            - "-notifier.url=http://alertmanager-service:9093"
+            - "-evaluationInterval=30s"
+          ports:
+            - name: http
+              containerPort: 8880
+              protocol: TCP
+          volumeMounts:
+            - name: alert-rules
+              mountPath: /etc/vmalert
+      volumes:
+        - name: alert-rules
+          configMap:
+            name: vmalert-rules

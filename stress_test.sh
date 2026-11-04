@@ -1,6 +1,6 @@
 #!/bin/bash
 
-THREADS=100
+THREADS=1000
 
 run_batch() {
     curl -s -o /dev/null http://localhost:8080/api/words

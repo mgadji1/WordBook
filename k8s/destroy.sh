@@ -6,31 +6,34 @@ cd "$(dirname "$0")/.."
 echo "1. Deleting prober..."
 kubectl delete -k k8s/prober --ignore-not-found
 
-echo "2. Deleting frontend..."
+echo "2. Deleting alerting..."
+kubectl delete -k k8s/alerting --ignore-not-found
+
+echo "3. Deleting frontend..."
 kubectl delete -k k8s/frontend --ignore-not-found
 
-echo "3. Deleting backend..."
+echo "4. Deleting backend..."
 kubectl delete -k k8s/backend --ignore-not-found
 
-echo "4. Deleting migration Job..."
+echo "5. Deleting migration Job..."
 kubectl delete -k k8s/migrate --ignore-not-found
 
-echo "5. Deleting log collector..."
+echo "6. Deleting log collector..."
 kubectl delete -k k8s/log-collector --ignore-not-found
 
-echo "6. Deleting Grafana..."
+echo "7. Deleting Grafana..."
 kubectl delete -k k8s/grafana --ignore-not-found
 
-echo "7. Deleting VictoriaLogs..."
+echo "8. Deleting VictoriaLogs..."
 kubectl delete -k k8s/victoria-logs --ignore-not-found
 
-echo "8. Deleting PostgreSQL..."
+echo "9. Deleting PostgreSQL..."
 kubectl delete -k k8s/postgres --ignore-not-found
 
-echo "9. Deleting VictoriaMetrics..."
+echo "10. Deleting VictoriaMetrics..."
 helm uninstall vmsingle --ignore-not-found
 
-echo "10. Deleting all PVCs..."
+echo "11. Deleting all PVCs..."
 kubectl delete pvc --all --ignore-not-found
 
 echo "WordBook has been destroyed!"

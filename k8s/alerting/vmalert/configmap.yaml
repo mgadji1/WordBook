@@ -1,0 +1,154 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vmalert-rules
+data:
+  alert-rules.yaml: |
+    groups:
+      - name: wordbook-alerts
+        rules:
+          - alert: WordBookLowAvailability
+            expr: 
+              (
+                sum(increase(wordbook_availability_checks_total{result="success"}[5m])) 
+                /
+                sum(increase(wordbook_availability_checks_total[5m]))
+              ) * 100 < 99
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: Wordbook availability is below 99%
+          
+          - alert: WordBookCriticalAvailability
+            expr: 
+              (
+                sum(increase(wordbook_availability_checks_total{result="success"}[5m])) 
+                /
+                sum(increase(wordbook_availability_checks_total[5m]))
+              ) * 100 < 95
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: Wordbook availability is below 95%
+            
+          - alert: WordBookLowRequestSuccessRate
+            expr: |
+              (
+                (
+                  sum(increase(wordbook_requests_total[5m]))
+                  -
+                  sum(increase(wordbook_requests_total{status=~"5.."}[5m]))
+                )
+                /
+                sum(increase(wordbook_requests_total[5m]))
+              ) * 100 < 99
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: WordBook request success rate is below 99%
+
+          - alert: WordBookCriticalRequestSuccessRate
+            expr: |
+              (
+                (
+                  sum(increase(wordbook_requests_total[5m]))
+                  -
+                  sum(increase(wordbook_requests_total{status=~"5.."}[5m]))
+                )
+                /
+                sum(increase(wordbook_requests_total[5m]))
+              ) * 100 < 95
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: WordBook request success rate is below 95%
+
+          - alert: WordBookHighLatency
+            expr: |
+              (
+                sum(increase(wordbook_request_duration_seconds_bucket{le="0.5"}[5m]))
+                /
+                sum(increase(wordbook_request_duration_seconds_count[5m]))
+              ) * 100 < 95
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: Less than 95% of WordBook requests complete within 500ms
+
+          - alert: WordBookCriticalLatency
+            expr: |
+              (
+                sum(increase(wordbook_request_duration_seconds_bucket{le="0.5"}[5m]))
+                /
+                sum(increase(wordbook_request_duration_seconds_count[5m]))
+              ) * 100 < 90
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: Less than 90% of WordBook requests complete within 500ms
+
+          - alert: WordBookHighRAMUsage
+            expr: |
+              (
+                container_memory_working_set_bytes{
+                  pod=~"backend-.*|frontend-.*|postgres-[0-9]+"
+                }
+                /
+                container_spec_memory_limit_bytes{
+                  pod=~"backend-.*|frontend-.*|postgres-[0-9]+"
+                }
+              ) * 100 > 80
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: Wordbook RAM usage is greater than 80%
+
+          - alert: WordBookCriticalRAMUsage
+            expr: |
+              (
+                container_memory_working_set_bytes{
+                  pod=~"backend-.*|frontend-.*|postgres-[0-9]+"
+                }
+                /
+                container_spec_memory_limit_bytes{
+                  pod=~"backend-.*|frontend-.*|postgres-[0-9]+"
+                }
+              ) * 100 > 90
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: Wordbook RAM usage is greater than 90%
+
+          - alert: WordBookHighCPUUsage
+            expr: |
+              sum by (pod) (
+                rate(container_cpu_usage_seconds_total{
+                  pod=~"backend-.*|frontend-.*|postgres-[0-9]+"
+                }[5m])
+              ) > 0.8
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: WordBook CPU usage is greater than 0.8 cores
+
+          - alert: WordBookCriticalCPUUsage
+            expr: |
+              sum by (pod) (
+                rate(container_cpu_usage_seconds_total{
+                  pod=~"backend-.*|frontend-.*|postgres-[0-9]+"
+                }[5m])
+              ) > 0.9
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: WordBook CPU usage is greater than 0.9 cores
