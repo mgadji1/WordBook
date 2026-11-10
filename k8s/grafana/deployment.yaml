@@ -28,7 +28,12 @@ spec:
           volumeMounts:
             - name: provisioning
               mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
       volumes:
         - name: provisioning
           configMap:
             name: grafana-datasource
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-pvc

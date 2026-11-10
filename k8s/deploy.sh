@@ -22,6 +22,7 @@ kubectl apply -k k8s/log-collector
 kubectl rollout status daemonset/vlagent --timeout=60s
 
 echo "5. Deploying Grafana..."
+kubectl apply -f k8s/grafana/pvc.yaml
 kubectl apply -k k8s/grafana
 kubectl rollout status deployment/grafana --timeout=60s
 

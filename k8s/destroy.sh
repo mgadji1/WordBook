@@ -33,7 +33,4 @@ kubectl delete -k k8s/postgres --ignore-not-found
 echo "10. Deleting VictoriaMetrics..."
 helm uninstall vmsingle --ignore-not-found
 
-echo "11. Deleting all PVCs..."
-kubectl delete pvc --all --ignore-not-found
-
 echo "WordBook has been destroyed!"

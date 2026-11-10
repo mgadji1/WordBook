@@ -10,4 +10,13 @@ data:
         type: victoriametrics-logs-datasource
         access: proxy
         url: http://victoria-logs-service:9428
+        isDefault: false
+
+  victoria-metrics.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: VictoriaMetrics
+        type: prometheus
+        access: proxy
+        url: http://vmsingle-victoria-metrics-single-server:8428
         isDefault: true
