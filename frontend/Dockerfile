@@ -1,7 +1,7 @@
-FROM python:3.13-slim
+FROM nginx:alpine
 
-WORKDIR /frontend
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY . .
+COPY index.html script.js style.css /usr/share/nginx/html/
 
-CMD ["python", "-m", "http.server", "3000"]
+EXPOSE 3000
