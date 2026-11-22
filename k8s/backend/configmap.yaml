@@ -4,3 +4,4 @@ metadata:
   name: backend-config
 data:
   FRONTEND_PORT: "3000"
+  SERVICE_VERSION: "1.0"

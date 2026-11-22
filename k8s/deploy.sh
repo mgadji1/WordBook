@@ -4,9 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "1. Deploying VictoriaMetrics..."
-helm repo add vm https://victoriametrics.github.io/helm-charts/ --force-update
-helm repo update vm
-helm upgrade --install vmsingle vm/victoria-metrics-single -f k8s/victoria-metrics/guide-vmsingle-values.yaml
+helm upgrade --install vmsingle vm/victoria-metrics-single \
+  -f k8s/victoria-metrics/guide-vmsingle-values.yaml
 kubectl rollout status statefulset/vmsingle-victoria-metrics-single-server --timeout=120s
 
 echo "2. Deploying PostgreSQL..."
@@ -50,5 +49,19 @@ kubectl rollout status deployment/frontend --timeout=60s
 echo "11. Deploying prober..."
 kubectl apply -k k8s/prober
 kubectl rollout status deployment/prober --timeout=60s
+
+echo "12. Deploying Envoy Gateway..."
+helm upgrade --install eg oci://docker.io/envoyproxy/gateway-helm \
+  --version v1.10.0 \
+  -n envoy-gateway-system \
+  --create-namespace
+kubectl rollout status deployment/envoy-gateway \
+  -n envoy-gateway-system --timeout=120s
+
+echo "13. Deploying WordBook Gateway..."
+kubectl apply -k k8s/gateway
+kubectl wait --for=condition=Programmed \
+  gateway/wordbook-gateway \
+  -n default --timeout=120s
 
 echo "Successful deployment!"

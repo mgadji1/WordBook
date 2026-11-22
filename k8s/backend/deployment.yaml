@@ -41,13 +41,29 @@ spec:
             - name: SERVICE_NAME
               value: "wordbook-backend"
             - name: SERVICE_VERSION
-              value: "1.0"
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: SERVICE_VERSION
             - name: DEPLOYMENT_ENVIRONMENT
               value: "minikube"
             - name: K8S_POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:
