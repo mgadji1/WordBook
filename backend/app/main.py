@@ -10,6 +10,11 @@ from app.metrics import (
 )
 
 
+from app.database.database import engine
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+
 class UTCJsonFormatter(JsonFormatter):
     def formatTime(self, record, datefmt=None):
         return (
@@ -80,14 +85,17 @@ async def metrics_middleware(request: Request, call_next):
         wordbook_request_duration_seconds.observe(time.monotonic() - start_time)
 
         wordbook_requests_total.labels(status=str(response.status_code)).inc()
-
-        return response
+    
     except Exception:
         wordbook_request_duration_seconds.observe(time.monotonic() - start_time)
 
         wordbook_requests_total.labels(status="500").inc()
 
         raise
+
+    response.headers["X-Service-Version"] = settings.SERVICE_VERSION
+
+    return response
 
 @app.on_event("startup")
 async def startup():
@@ -98,5 +106,29 @@ async def startup():
 @app.get("/")
 async def root():
     return {
-        "message": "Wordbook API is running"
+        "message": "Wordbook API is running",
+        "version": settings.SERVICE_VERSION
     }
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "alive"
+    }
+
+@app.get("/ready")
+async def readiness():
+    try:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+
+        return {
+            "status": "ready"
+        }
+
+    except SQLAlchemyError:
+        return Response(
+            content='{"status": "not ready"}',
+            status_code=503,
+            media_type="application/json"
+        )
